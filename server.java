@@ -4,14 +4,20 @@ import java.security.KeyStore;
 import javax.net.*;
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
+import java.util.*;
+import java.util.ArrayList;
 
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
+    private HashMap<String, ArrayList<String>> map;
+    private HashMap <String,String> logins;
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
         newListener();
+        this.logins = new HashMap<String,String>();
+        logins.put("marcus","9wvsvH7SDWyuuw8pXJgYEBlmj6a7KSMkEuOWuey0KSA=");
     }
 
     public void run() {
@@ -25,21 +31,46 @@ public class server implements Runnable {
             System.out.println("client connected");
             System.out.println("client name (cert subject DN field): " + subject);
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
-
             PrintWriter out = null;
             BufferedReader in = null;
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            boolean verified = false;
+            
+            while(!verified){
+                String userName = in.readLine();
+                String password = in.readLine();
+                if(!logins.containsKey(userName)){
+                    out.println("Error username does not exist, try again");
+                    out.flush();
+                }else{
+                    if(password.equals(logins.get(userName))){
+                        out.println("ok");
+                        out.flush();
+                        verified=true;
+                    }else{
+                        out.println("Error, incorrect password");
+                        out.flush();
+                    }
+                }
+            }
+
+
             String clientMsg = null;
             while ((clientMsg = in.readLine()) != null) {
-			    String rev = new StringBuilder(clientMsg).reverse().toString();
-                System.out.println("received '" + clientMsg + "' from client");
-                System.out.print("sending '" + rev + "' to client...");
-				out.println(rev);
-				out.flush();
-                System.out.println("done\n");
+
+                // System.out.println("received '" + clientMsg + "' from client");
+                // System.out.print("sending '" + rev + "' to client...");
+				// out.println(rev);
+				// out.flush();
+                // System.out.println("done\n");
 			}
+
+
+
+
+
 			in.close();
 			out.close();
 			socket.close();

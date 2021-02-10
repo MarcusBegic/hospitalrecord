@@ -1,10 +1,12 @@
 import java.net.*;
+import java.security.*;
 import java.io.*;
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
 import java.security.KeyStore;
 import java.security.cert.*;
-
+import java.util.*;
+import java.nio.charset.StandardCharsets;
 /*
  * This example shows how to set up a key manager to perform client
  * authentication.
@@ -54,12 +56,6 @@ public class client {
             SSLSocket socket = (SSLSocket)factory.createSocket(host, port);
             System.out.println("\nsocket before handshake:\n" + socket + "\n");
 
-            /*
-             * send http request
-             *
-             * See SSLSocketClient.java for more information about why
-             * there is a forced handshake here when using PrintWriters.
-             */
             socket.startHandshake();
 
             SSLSession session = socket.getSession();
@@ -68,11 +64,35 @@ public class client {
             System.out.println("certificate name (subject DN field) on certificate received from server:\n" + subject + "\n");
             System.out.println("socket after handshake:\n" + socket + "\n");
             System.out.println("secure connection established\n\n");
-
             BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
+
+            boolean verified = false;
+            while(!verified){
+                System.out.println("username:");
+                Scanner s = new Scanner(System.in);
+                String userName = s.nextLine();
+                System.out.println("password:");
+                String password = s.nextLine();
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] encodedhash = digest.digest(password.getBytes(StandardCharsets.UTF_8)); //Creates a hash of the password 
+                String encoded = Base64.getEncoder().encodeToString(encodedhash);
+                System.out.println("Verifying your credentials");
+                out.println(userName);
+                out.flush();
+                out.println(encodedhash);
+                out.flush();
+                String res= in.readLine();
+                if(res.equals("ok")){
+                    verified = true;
+                }else{
+                    System.out.println(res);
+                }
+            }
+
+
 			for (;;) {
                 System.out.print(">");
                 msg = read.readLine();
