@@ -79,10 +79,9 @@ public class client {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                 byte[] encodedhash = digest.digest(password.getBytes(StandardCharsets.UTF_8)); //Creates a hash of the password 
                 String encoded = Base64.getEncoder().encodeToString(encodedhash);
-                System.out.println("Verifying your credentials");
                 out.println(userName);
                 out.flush();
-                out.println(encodedhash);
+                out.println(encoded);
                 out.flush();
                 String res= in.readLine();
                 if(res.equals("ok")){
