@@ -1,12 +1,11 @@
 import java.net.*;
-import java.security.*;
 import java.io.*;
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
 import java.security.KeyStore;
 import java.security.cert.*;
 import java.util.*;
-import java.nio.charset.StandardCharsets;
+import java.util.*;
 /*
  * This example shows how to set up a key manager to perform client
  * authentication.
@@ -38,14 +37,22 @@ public class client {
         try { /* set up a key manager for client authentication */
             SSLSocketFactory factory = null;
             try {
-                char[] password = "password".toCharArray();
+                System.out.println("username:");
+                Scanner s = new Scanner(System.in);
+                String userName = s.nextLine();
+                System.out.println("password:");
+                char[] password = s.nextLine().toCharArray();
                 KeyStore ks = KeyStore.getInstance("JKS");
                 KeyStore ts = KeyStore.getInstance("JKS");
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 SSLContext ctx = SSLContext.getInstance("TLS");
-                ks.load(new FileInputStream("clientkeystore"), password);  // keystore password (storepass)
-				ts.load(new FileInputStream("clienttruststore"), password); // truststore password (storepass);
+                try{
+                ks.load(new FileInputStream("/home/marcus/hospitalrecord/marcus/marcuskeystore"), password);  // keystore password (storepass)
+				ts.load(new FileInputStream("/home/marcus/hospitalrecord/marcus/marcustruststore"), password); // truststore password (storepass);
+                }catch (java.io.IOException){
+                    System.out.println("HACKERa");
+                }
 				kmf.init(ks, password); // user password (keypass)
 				tmf.init(ts); // keystore can be used as truststore here
 				ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
@@ -64,34 +71,11 @@ public class client {
             System.out.println("certificate name (subject DN field) on certificate received from server:\n" + subject + "\n");
             System.out.println("socket after handshake:\n" + socket + "\n");
             System.out.println("secure connection established\n\n");
+
             BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
-
-            boolean verified = false;
-            while(!verified){
-                System.out.println("username:");
-                Scanner s = new Scanner(System.in);
-                String userName = s.nextLine();
-                System.out.println("password:");
-                String password = s.nextLine();
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                byte[] encodedhash = digest.digest(password.getBytes(StandardCharsets.UTF_8)); //Creates a hash of the password 
-                String encoded = Base64.getEncoder().encodeToString(encodedhash);
-                out.println(userName);
-                out.flush();
-                out.println(encoded);
-                out.flush();
-                String res= in.readLine();
-                if(res.equals("ok")){
-                    verified = true;
-                }else{
-                    System.out.println(res);
-                }
-            }
-
-
 			for (;;) {
                 System.out.print(">");
                 msg = read.readLine();
