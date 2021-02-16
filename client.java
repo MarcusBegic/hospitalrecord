@@ -37,34 +37,57 @@ public class client {
         try { /* set up a key manager for client authentication */
             SSLSocketFactory factory = null;
             try {
-                System.out.println("username:");
-                Scanner s = new Scanner(System.in);
-                String userName = s.nextLine();
-                System.out.println("password:");
-                char[] password = s.nextLine().toCharArray();
                 KeyStore ks = KeyStore.getInstance("JKS");
                 KeyStore ts = KeyStore.getInstance("JKS");
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 SSLContext ctx = SSLContext.getInstance("TLS");
-                try{
-                ks.load(new FileInputStream("/home/marcus/hospitalrecord/marcus/marcuskeystore"), password);  // keystore password (storepass)
-				ts.load(new FileInputStream("/home/marcus/hospitalrecord/marcus/marcustruststore"), password); // truststore password (storepass);
-                }catch (java.io.IOException){
-                    System.out.println("HACKERa");
+
+                boolean verified=false;
+                String username = null;
+                char[] password=null;
+
+                while(!verified){
+                    try{
+                        Console console = System.console();
+                        username = console.readLine("Username: ");
+                        password = console.readPassword("Password: ");
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("/home/marcus/hospitalrecord/");
+                        sb.append(username);
+                        sb.append("/");
+                        sb.append(username);
+
+                        StringBuilder sb2 = new StringBuilder(sb);
+
+                        sb.append("keystore");
+                        sb2.append("truststore");
+
+                        String keystorePath = sb.toString();
+                        String truststorePath = sb2.toString();
+
+                        ks.load(new FileInputStream(keystorePath), password);  // keystore password (storepass)
+                        ts.load(new FileInputStream(truststorePath), password); // truststore password (storepass);
+
+                        verified=true;
+                    }catch (java.io.IOException e){
+                        System.out.println(e.toString());
+                        System.out.println("wrong password try again");
+                    }
                 }
+
 				kmf.init(ks, password); // user password (keypass)
 				tmf.init(ts); // keystore can be used as truststore here
 				ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
                 factory = ctx.getSocketFactory();
+
             } catch (Exception e) {
                 throw new IOException(e.getMessage());
             }
             SSLSocket socket = (SSLSocket)factory.createSocket(host, port);
             System.out.println("\nsocket before handshake:\n" + socket + "\n");
-
             socket.startHandshake();
-
             SSLSession session = socket.getSession();
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
             String subject = cert.getSubjectDN().getName();

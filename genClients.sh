@@ -4,7 +4,7 @@ NAME=$1
 mkdir $NAME
 cd $NAME
 
-keytool -import -file ~/hospitalrecord/CA.crt -alias CA -keystore "${NAME}truststore"
+keytool -import -file ~/hospitalrecord/CA.crt -alias CA -keystore "${NAME}truststore" 
 keytool -keystore "${NAME}keystore" -genkey -alias clientkeypair
 keytool -certreq -alias clientkeypair -keystore "${NAME}keystore" -file client.csr
 openssl  x509  -req  -CA ~/hospitalrecord/CA.crt -CAkey ~/hospitalrecord/key.key -in client.csr -out client.cer  -days 365  -CAcreateserial -passin pass:$NAME
