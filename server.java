@@ -8,7 +8,6 @@ import javax.security.cert.X509Certificate;
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
-
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
         newListener();
@@ -16,6 +15,10 @@ public class server implements Runnable {
 
     public void run() {
         try {
+            // FilePermission fp = new FilePermission("/home/marcus/hospitalrecord/data/data", "read");
+            // AccessController ac = new AccessController();
+            // ac.checkAccess(fp);
+            
             SSLSocket socket=(SSLSocket)serverSocket.accept();
             newListener();
             SSLSession session = socket.getSession();
@@ -25,7 +28,6 @@ public class server implements Runnable {
             System.out.println("client connected");
             System.out.println("client name (cert subject DN field): " + subject);
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
-
             PrintWriter out = null;
             BufferedReader in = null;
             out = new PrintWriter(socket.getOutputStream(), true);
@@ -53,6 +55,7 @@ public class server implements Runnable {
     }
 
     private void newListener() { (new Thread(this)).start(); } // calls run()
+
     public static void main(String args[]) {
         System.out.println("\nServer Started\n");
         int port = -1;
@@ -70,6 +73,7 @@ public class server implements Runnable {
             e.printStackTrace();
         }
     }
+
     private static ServerSocketFactory getServerSocketFactory(String type) {
         if (type.equals("TLS")) {
             SSLServerSocketFactory ssf = null;

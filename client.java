@@ -1,3 +1,4 @@
+
 import java.net.*;
 import java.io.*;
 import javax.net.ssl.*;
@@ -6,6 +7,7 @@ import java.security.KeyStore;
 import java.security.cert.*;
 import java.util.*;
 import java.util.*;
+
 /*
  * This example shows how to set up a key manager to perform client
  * authentication.
@@ -14,6 +16,7 @@ import java.util.*;
  * The application can be modified to connect to a server outside
  * the firewall by following SSLSocketClientWithTunneling.java.
  */
+
 public class client {
 
     public static void main(String[] args) throws Exception {
@@ -42,7 +45,6 @@ public class client {
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 SSLContext ctx = SSLContext.getInstance("TLS");
-
                 boolean verified=false;
                 String username = null;
                 char[] password=null;
@@ -52,28 +54,23 @@ public class client {
                         Console console = System.console();
                         username = console.readLine("Username: ");
                         password = console.readPassword("Password: ");
-
                         StringBuilder sb = new StringBuilder();
                         sb.append("/home/marcus/hospitalrecord/");
                         sb.append(username);
                         sb.append("/");
                         sb.append(username);
-
                         StringBuilder sb2 = new StringBuilder(sb);
-
                         sb.append("keystore");
                         sb2.append("truststore");
-
                         String keystorePath = sb.toString();
                         String truststorePath = sb2.toString();
-
                         ks.load(new FileInputStream(keystorePath), password);  // keystore password (storepass)
                         ts.load(new FileInputStream(truststorePath), password); // truststore password (storepass);
-
                         verified=true;
+
                     }catch (java.io.IOException e){
-                        System.out.println(e.toString());
-                        System.out.println("wrong password try again");
+                        // System.out.println(e.toString());
+                        System.out.println("Incorrect credentials, try again");
                     }
                 }
 
@@ -94,7 +91,6 @@ public class client {
             System.out.println("certificate name (subject DN field) on certificate received from server:\n" + subject + "\n");
             System.out.println("socket after handshake:\n" + socket + "\n");
             System.out.println("secure connection established\n\n");
-
             BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
