@@ -1,16 +1,22 @@
 import java.io.*;
 import java.net.*;
 import java.security.KeyStore;
+// import javax.security.auth;
 import javax.net.*;
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
+import java.util.*;
+import java.math.BigInteger;
 
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
+    private HashMap<BigInteger, String> clientsMap;
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
         newListener();
+        // clientsMap = new HashMap<BigInteger, String>(); 
+        // clientsMap.put(a, new BigInteger(111428791329258712977551130365341285530045495351));
     }
 
     public void run() {
@@ -18,16 +24,18 @@ public class server implements Runnable {
             // FilePermission fp = new FilePermission("/home/marcus/hospitalrecord/data/data", "read");
             // AccessController ac = new AccessController();
             // ac.checkAccess(fp);
-            
             SSLSocket socket=(SSLSocket)serverSocket.accept();
             newListener();
             SSLSession session = socket.getSession();
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
+            BigInteger serialNum = cert.getSerialNumber();
+            System.out.println("Thid is his serialnumber"+serialNum.toString());
             String subject = cert.getSubjectDN().getName();
     	    numConnectedClients++;
             System.out.println("client connected");
             System.out.println("client name (cert subject DN field): " + subject);
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
+
             PrintWriter out = null;
             BufferedReader in = null;
             out = new PrintWriter(socket.getOutputStream(), true);
