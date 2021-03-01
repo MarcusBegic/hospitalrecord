@@ -8,15 +8,6 @@ import java.security.cert.*;
 import java.util.*;
 import java.util.*;
 
-/*
- * This example shows how to set up a key manager to perform client
- * authentication.
- *
- * This program assumes that the client is not inside a firewall.
- * The application can be modified to connect to a server outside
- * the firewall by following SSLSocketClientWithTunneling.java.
- */
-
 public class client {
 
     public static void main(String[] args) throws Exception {
@@ -67,7 +58,6 @@ public class client {
                         ks.load(new FileInputStream(keystorePath), password);  // keystore password (storepass)
                         ts.load(new FileInputStream(truststorePath), password); // truststore password (storepass);
                         verified=true;
-
                     }catch (java.io.IOException e){
                         // System.out.println(e.toString());
                         System.out.println("Incorrect credentials, try again");
@@ -95,18 +85,25 @@ public class client {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
+            String servermsg;
+
 			for (;;) {
+                System.out.println("Options:");
+                System.out.println("1. Read your record?");
+                System.out.println("2. Read your patients record?");
+                System.out.println("3. Append/write to your patients record?");
                 System.out.print(">");
                 msg = read.readLine();
                 if (msg.equalsIgnoreCase("quit")) {
 				    break;
 				}
-                System.out.print("sending '" + msg + "' to server...");
                 out.println(msg);
                 out.flush();
-                System.out.println("done");
-
-                System.out.println("received '" + in.readLine() + "' from server\n");
+                servermsg = in.readLine();
+                if(servermsg == null){
+                    break;
+                }
+                System.out.println(servermsg);
             }
             in.close();
 			out.close();
