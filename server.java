@@ -67,6 +67,10 @@ public class server implements Runnable {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String partialPath = "/home/marcus/hospitalrecord/records/";
+            String patient;
+            String logpath = "/home/marcus/hospitalrecord/log";
+            FileWriter logwriter = new FileWriter(logpath);
+
 
             if(clientPrivelege.containsKey(serialNum)){
                 switch(clientPrivelege.get(serialNum)){
@@ -74,8 +78,17 @@ public class server implements Runnable {
                         while(true){
                         String input = in.readLine();
                             if(input.equals("1")){
-                            String patient = serialToName.get(serialNum);
-                            String path = partialPath + "/" + getWing.get(serialNum) + "/" + patient; 
+                            patient = serialToName.get(serialNum);
+                            String path;
+                            if(recordCount.get(serialNum)>1){
+                                out.println("Which record would you like to read?");
+                                out.flush();
+                                String answer = in.readLine();
+                                path = partialPath + "/" + getWing.get(serialNum) + "/" + patient + answer; 
+                            }
+                            else{
+                            path = partialPath + "/" + getWing.get(serialNum) + "/" + patient; 
+                            }
                             File patientFile = new File(path);
                             Scanner scanner = new Scanner(patientFile);
                             while(scanner.hasNext()){
@@ -83,12 +96,14 @@ public class server implements Runnable {
                                 out.println(line);
                                 out.flush();
                                 }
+                            logwriter.write(serialToName.get(serialNum) + " " + "read his own record");
+                            logwriter.close();
                             }
                             else{
-                                out.println("access denied");
+                                out.println("Access denied");
                                 out.flush();
-                                out.println(null);
-                                out.flush();
+                                logwriter.write(serialToName.get(serialNum) + "tried to access unauthorized content");
+                                logwriter.close();
                                 break;
                             } 
                         }
@@ -97,7 +112,7 @@ public class server implements Runnable {
                         while(true){
                         String input = in.readLine();
                         if(input.equals("2")){
-                            String patient = patientMap.get(serialNum);
+                            patient = patientMap.get(serialNum);
                             String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient);
                             File patientFile = new File(path);
                             Scanner scanner = new Scanner(patientFile);
@@ -106,10 +121,9 @@ public class server implements Runnable {
                                 out.println(line);
                                 out.flush();
                             }
-                            out.println("---------------------------------------------------------");
-                            out.flush();
+                            logwriter.write("Nurse read " + serialToName.get(patient) + " files");
+                            logwriter.close();
                         }
-
                         else if(input.equals("1")){
                             out.println("Faulty choice");
                             out.flush();
@@ -119,14 +133,109 @@ public class server implements Runnable {
                             out.println("Access denied");
                             out.flush();
                             break;
+                            }
+                        }
+                        break;
+                    case 1: 
+                        while(true){
+                        String input = in.readLine();
+                        if(input.equals("3")){
+                            out.println("Options: " + "1. Write to record"  + " 2.Create new record");
+                            out.flush();
+                            String answer = in.readLine(); 
+                            if(answer.equals("2")){
+                                patient = patientMap.get(serialNum);
+                                String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient) + recordCount.get(patient).toString();
+                                recordCount.put(patient, recordCount.get(patient)+1);
+                                File newRecord = new File(path);
+                                newRecord.createNewFile();
+                                logwriter.write("doctor created a new record for " + serialToName.get(patient)); 
+                                logwriter.close();
+                            }
+                            if(answer.equals("1")){
+                                out.println(">");
+                                out.flush();
+                                input = in.readLine();
+                                patient = patientMap.get(serialNum);
+                                String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient); 
+                                FileWriter writer = new FileWriter(path);
+                                writer.write(input);
+                                writer.close();
+                                logwriter.write("doctor wrote to " + serialToName.get(patient) + " file"); 
+                                logwriter.close();
+                            }
+                        } else if(input.equals("2")){
+                            patient = patientMap.get(serialNum);
+                            String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient);
+                            File patientFile = new File(path);
+                            Scanner scanner = new Scanner(patientFile);
+                            while(scanner.hasNext()){
+                                String line = scanner.nextLine();
+                                out.println(line);
+                                out.flush();
+                                }
+                                logwriter.write("doctor read" + serialToName.get(patient) + " file"); 
+                                logwriter.close();
+                            }
+                        else{
+                            break;
                         }
                         }
                         break;
-                    case 1: // doctor
+
+                    case 0: { //NSA
+                        String indata = in.readLine();
+                        out.println("Chose a patient: " + " 1. Marcus" + " 2. Joel");
+                        out.flush();
+                        String numpatient = in.readLine();
+                        patient = null;
+                        if(numpatient.equals("1")){
+                            patient = marcus;
+                        }
+                        if(numpatient.equals("2")){
+                            patient = joel;
+                        }
+                        if(indata.equals("3")){
+                            out.println("Options: " + "1. Write to record"  + " 2.Create new record");
+                            out.flush();
+                            String answer = in.readLine(); 
+                            if(answer.equals("2")){
+                                String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient) + recordCount.get(patient).toString();
+                                recordCount.put(patient, recordCount.get(patient)+1);
+                                File newRecord = new File(path);
+                                newRecord.createNewFile();
+                                logwriter.write("nsa created a new record for " + serialToName.get(patient)); 
+                                logwriter.close();
+                            }
+                            if(answer.equals("1")){
+                                out.println(">");
+                                out.flush();
+                                indata = in.readLine();
+                                String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient); 
+                                FileWriter writer = new FileWriter(path);
+                                writer.write(indata);
+                                writer.close();
+                                logwriter.write("doctor wrote to " + serialToName.get(patient) + " file"); 
+                                logwriter.close();
+                            }
+
+                        } else if(indata.equals("2")){
+                            String path = partialPath + "/" + getWing.get(patient) + "/" + serialToName.get(patient);
+                            File patientFile = new File(path);
+                            Scanner scanner = new Scanner(patientFile);
+                            while(scanner.hasNext()){
+                                String line = scanner.nextLine();
+                                out.println(line);
+                                out.flush();
+                            }
+                                logwriter.write("nsa read" + serialToName.get(patient) + " file"); 
+                                logwriter.close();
+                        }
                         break;
-                    case 0: //NSA
-                        break;
+                    }
+
                     default:
+                            System.out.println("lol");
                         break;
                 }
             }else{

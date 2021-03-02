@@ -87,24 +87,63 @@ public class client {
             String msg;
             String servermsg;
 
-			for (;;) {
-                System.out.println("Options:");
-                System.out.println("1. Read your record?");
-                System.out.println("2. Read your patients record?");
-                System.out.println("3. Append/write to your patients record?");
+            System.out.println("Options:");
+            System.out.println("1. Read your record?");
+            System.out.println("2. Read your patients record?");
+            System.out.println("3. Create/write to your patients record?");
+            System.out.print(">");
+
+                for (;;) {
                 System.out.print(">");
                 msg = read.readLine();
                 if (msg.equalsIgnoreCase("quit")) {
 				    break;
 				}
+                System.out.print("sending '" + msg + "' to server...");
                 out.println(msg);
                 out.flush();
-                servermsg = in.readLine();
-                if(servermsg == null){
-                    break;
-                }
-                System.out.println(servermsg);
+                System.out.println("done");
+                
+                System.out.println(in.readLine() + "\n");
             }
+            // msg = read.readLine();
+            // out.println(msg);
+            // out.flush();
+
+            // servermsg = in.readLine();
+            // System.out.println(servermsg);
+
+            // if(!servermsg.equals("Access denied") || !servermsg.equals("Faulty choice")){
+
+            //     if(servermsg.equals("Which record would you like to read?")){
+            //         msg = read.readLine();
+            //         out.println(msg);
+            //         out.flush();
+            //         servermsg = in.readLine();
+            //         System.out.println(servermsg);
+            //     }
+            //     if(servermsg.equals("Chose a patient")){
+            //         msg = read.readLine();
+            //         out.println(msg);
+            //         out.flush();
+            //         servermsg = in.readLine();
+            //         System.out.println(servermsg);
+            //     }
+            //     if(servermsg.startsWith("Options:")){
+            //         msg = read.readLine();
+            //         out.println(msg);
+            //         out.flush();
+            //     }
+            //     servermsg = in.readLine();
+            //     System.out.println(servermsg);
+
+            //     if(servermsg.equals(">")){
+            //         msg = read.readLine();
+            //         out.println(msg);
+            //         out.flush();
+            //     }
+            // }
+
             in.close();
 			out.close();
 			read.close();
