@@ -60,8 +60,8 @@ public class server implements Runnable {
         getWing.put(marcus, "southward");
         getWing.put(joel, "northward");
         recordCount = new HashMap<String, Integer>();
-        recordCount.put(marcus, 0);
-        recordCount.put(joel, 0);
+        recordCount.put(marcus, 1);
+        recordCount.put(joel, 1);
         patientRecords = new HashMap<String,Set<String>>();
         patientRecords.put(marcus, new HashSet<String>());
         patientRecords.put(joel, new HashSet<String>());
@@ -256,14 +256,16 @@ public class server implements Runnable {
                             if(answer.equals("2")){
                                 out.println("Approved access");
                                 out.flush();
-                                out.println("Hit enter to create new record");
+                                out.println("What nurse do you want to be able to see this record?");
                                 out.flush();
+                                String nurse = in.readLine();
+                                nurse = nameToSerial.get(nurse);
+                                patientMap.get(nurse).add(patient);
                                 recordCount.put(patient, recordCount.get(patient)+1);
                                 String newFileName = serialToName.get(patient) + recordCount.get(patient).toString();
                                 String path = partialPath + "/" + getWing.get(patient) + "/" + newFileName + recordCount.get(patient);
                                 File newRecord = new File(path);
                                 newRecord.createNewFile();
-                                recordCount.put(patient, (recordCount.get(patient)+1));
                                 logwriter.write("\n" + accessTime() +serialToName.get(serialNum) +" created a new record for " + serialToName.get(patient)); 
                                 logwriter.close();
                                 patientRecords.get(patient).add(newFileName+recordCount.get(patient));
