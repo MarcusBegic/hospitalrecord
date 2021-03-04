@@ -10,6 +10,24 @@ import java.util.*;
 
 public class client {
 
+    private static void initOptions(){
+        System.out.println("-------------------------------------------------------");
+        System.out.println("Options:");
+        System.out.println("1. Read your record?");
+        System.out.println("2. Read your patients record?");
+        System.out.println("3. Create/write to your patients record?");
+        System.out.println("4. Quit");
+        System.out.print(">");
+        }
+
+    private static void nsaInitOptions(){
+        System.out.println("-------------------------------------------------------");
+        System.out.println("Secret Options:");
+        System.out.println("1. Delete/read to any patients record?");
+        System.out.println("2. Quit");
+        System.out.print(">");
+        }
+
     public static void main(String[] args) throws Exception {
         String host = null;
         int port = -1;
@@ -86,64 +104,29 @@ public class client {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
             String servermsg;
-
-            System.out.println("Options:");
-            System.out.println("1. Read your record?");
-            System.out.println("2. Read your patients record?");
-            System.out.println("3. Create/write to your patients record?");
-            System.out.print(">");
-
-                for (;;) {
+            for (;;) {
+                servermsg = in.readLine();
+                if(servermsg.equals("init")){
+                    initOptions();
+                }else if(servermsg.equals("nsainit")){
+                    nsaInitOptions();
+                }
+                else{
+                System.out.println(servermsg + "\n");
+                }
                 System.out.print(">");
                 msg = read.readLine();
                 if (msg.equalsIgnoreCase("quit")) {
-				    break;
-				}
+                    break;
+                }
                 System.out.print("sending '" + msg + "' to server...");
                 out.println(msg);
                 out.flush();
                 System.out.println("done");
-                
-                System.out.println(in.readLine() + "\n");
+                servermsg = in.readLine();
+                System.out.println(servermsg);
+            
             }
-            // msg = read.readLine();
-            // out.println(msg);
-            // out.flush();
-
-            // servermsg = in.readLine();
-            // System.out.println(servermsg);
-
-            // if(!servermsg.equals("Access denied") || !servermsg.equals("Faulty choice")){
-
-            //     if(servermsg.equals("Which record would you like to read?")){
-            //         msg = read.readLine();
-            //         out.println(msg);
-            //         out.flush();
-            //         servermsg = in.readLine();
-            //         System.out.println(servermsg);
-            //     }
-            //     if(servermsg.equals("Chose a patient")){
-            //         msg = read.readLine();
-            //         out.println(msg);
-            //         out.flush();
-            //         servermsg = in.readLine();
-            //         System.out.println(servermsg);
-            //     }
-            //     if(servermsg.startsWith("Options:")){
-            //         msg = read.readLine();
-            //         out.println(msg);
-            //         out.flush();
-            //     }
-            //     servermsg = in.readLine();
-            //     System.out.println(servermsg);
-
-            //     if(servermsg.equals(">")){
-            //         msg = read.readLine();
-            //         out.println(msg);
-            //         out.flush();
-            //     }
-            // }
-
             in.close();
 			out.close();
 			read.close();
